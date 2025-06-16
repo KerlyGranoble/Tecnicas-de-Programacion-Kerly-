@@ -1,0 +1,73 @@
+# Una clase que representa la información climática de un día
+class ClimaDiario:
+     def init_(self, dia, temperatura):
+
+         # Usamos variables privadas para aplicar el encapsulamiento
+         self.__dia = dia
+         self.__temperatura = temperatura
+
+    # Método para obtener la temperatura (getter)
+     def obtener_temperatura(self):
+         return self.__temperatura
+
+     #Método especial que permite imprimir este objeto amigablemente
+     def str_(self):
+          return f"{self.__dia}: {self.__temperatura} °C"
+
+ # Una clase que agrupa los registros de una semana
+class SemanaClimatica:
+     def init_(self):
+         self.registros = [] # Usaremos esta lista para almacenar objetos de ClimaDiario
+  
+ # Método para agregar un día con su temperatura
+     def agregar_dia(self, clima_diario):
+         self.registros.append(clima_diario)
+  
+  # Método para calcular el promedio de temperatura de la semana
+     def calcular_promedio(self):
+         total = sum([registro.obtener_temperatura() for registro in self.registros])
+         return total / len(self.registros)
+
+  # Método para mostrar todos los registros diarios
+     def mostrar_registros(self):
+         for registro in self.registros:
+              print(registro)
+
+# Una clase que hereda la SemanaClimatica y agrega una nueva funcionalidad
+
+class SemanaClimaticaAvanzada(SemanaClimatica): # Herencia
+    # Método para obtener días con temperatura mayor a un umbral
+     def obtener_dias_con_temperatura_mayor(self, umbral):
+         return [registro for registro in self.registros if registro.obtener_temperatura()>umbral]
+
+# La función principal del programa
+def main():
+     dias = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
+
+   # Creamos un objeto de la clase avanzada
+     semana = SemanaClimaticaAvanzada()
+
+     print("Registro de temperaturas semanales (modo POO)")
+
+    # Ingreso de temperaturas para cada día
+     for dia in dias:
+          temp = float(input(f"Ingrese la temperatura del {dia}: "))
+          semana.agregar_dia(ClimaDiario(dia,temp))  # Creamos un objeto y lo agregamos
+
+  # Mostramos todos los registros ingresados
+     print( "\nTemperaturas registradas:")
+     semana.mostrar_registros()
+
+   # Calculamos y mostramos el promedio semanal
+     promedio = semana.calcular_promedio()
+     print(f"\nEl promedio semanal de temperatura es: {promedio:.2f} °C")
+
+    # Ejemplo de funcionalidad extendida: mostrar días calurosos
+     dias_calidos = semana.obtener_dias_con_temperatura_mayor(25)
+     if dias_calidos:
+         print("\nDías con temperatura superior a 25°C:")
+         for dia in dias_calidos:
+              print(dia)
+
+# Ejecutar el programa
+main()
