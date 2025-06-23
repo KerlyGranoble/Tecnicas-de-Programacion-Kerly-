@@ -1,1 +1,53 @@
+# Clase que representa un producto en la tienda
+class Producto:
+    def __init__(self, nombre, precio):
+        self.nombre = nombre
+        self.precio = precio
 
+    def __str__(self):
+        return f"{self.nombre} - ${self.precio:.2f}"
+
+
+# Clase que representa el carrito de compras
+class Carrito:
+    def __init__(self):
+        self.items = []
+
+    # Agrega un producto al carrito
+    def agregar_producto(self, producto):
+        self.items.append(producto)
+        print(f"Producto agregado: {producto}")
+
+    # Muestra todos los productos en el carrito
+    def mostrar_carrito(self):
+        if not self.items:
+            print("El carrito está vacío.")
+        else:
+            print("Productos en el carrito:")
+            for item in self.items:
+                print(f"- {item}")
+
+    # Calcula el total a pagar
+    def total_compra(self):
+        total = sum(producto.precio for producto in self.items)
+        return total
+
+
+# Código de prueba: interacción entre objetos
+if __name__ == "__main__":
+    # Crear productos
+    producto1 = Producto("Camisa", 25.99)
+    producto2 = Producto("Zapatos", 59.90)
+    producto3 = Producto("Pantalón", 45.00)
+
+    # Crear carrito de compras
+    carrito = Carrito()
+
+    # Agregar productos al carrito
+    carrito.agregar_producto(producto1)
+    carrito.agregar_producto(producto2)
+    carrito.agregar_producto(producto3)
+
+    # Mostrar productos y total
+    carrito.mostrar_carrito()
+    print(f"Total a pagar: ${carrito.total_compra():.2f}")
