@@ -1,0 +1,52 @@
+# Programa para calcular el área de algunas figuras geométricas.
+# El usuario puede elegir entre círculo, cuadrado o triángulo.
+# Se hace uso de distintos tipos de datos: int, float, string, boolean.
+# Se siguen las convenciones de estilo con snake_case para nombres de variables y funciones.
+
+import math
+
+def calcular_area_circulo(radio):
+    """Calcula el área de un círculo dado su radio."""
+    return math.pi * radio ** 2
+
+def calcular_area_cuadrado(lado):
+    """Calcula el área de un cuadrado dado el lado."""
+    return lado * lado
+
+def calcular_area_triangulo(base, altura):
+    """Calcula el área de un triángulo dado su base y altura."""
+    return (base * altura) / 2
+
+def mostrar_menu():
+    """Muestra el menú de opciones al usuario."""
+    print("\nCalculadora de áreas")
+    print("1. Círculo")
+    print("2. Cuadrado")
+    print("3. Triángulo")
+    print("4. Salir")
+
+# Variable booleana para controlar el ciclo del menú
+seguir_ejecutando = True
+
+while seguir_ejecutando:
+    mostrar_menu()
+    opcion = input("Ingresa una opción por favor: ")
+
+    if opcion == "1":
+        radio = float(input("Ingrese el radio del círculo: "))
+        area = calcular_area_circulo(radio)
+        print(f"El área del círculo es: {area:.2f}")
+    elif opcion == "2":
+        lado = float(input("Ingrese el lado del cuadrado: "))
+        area = calcular_area_cuadrado(lado)
+        print(f"El área del cuadrado es: {area:.2f}")
+    elif opcion == "3":
+        base = float(input("Ingrese la base del triángulo: "))
+        altura = float(input("Ingrese la altura del triángulo: "))
+        area = calcular_area_triangulo(base, altura)
+        print(f"El área del triángulo es: {area:.2f}")
+    elif opcion == "4":
+        seguir_ejecutando = False
+        print("Saliendo del programa...")
+    else:
+        print("Opción ingresada inválida. Por favor, intenta nuevamente.")
