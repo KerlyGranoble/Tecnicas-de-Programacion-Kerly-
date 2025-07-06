@@ -1,0 +1,56 @@
+# Clase base: Persona
+class Persona:
+    def __init__(self, nombre, edad):
+        self.nombre = nombre          # Atributo público
+        self.__edad = edad           # Atributo privado (encapsulado)
+
+    def mostrar_info(self):
+        return f"Nombre: {self.nombre}, Edad: {self.__edad}"
+
+    # Método getter y setter para el atributo encapsulado para poder acceder y modificar la edad desde afuera
+    def get_edad(self):
+        return self.__edad
+
+    def set_edad(self, nueva_edad):
+        if nueva_edad > 0:
+            self.__edad = nueva_edad
+        else:
+            print("Edad no válida")
+
+# Clase derivada: Empleado (Hereda de Persona)
+class Empleado(Persona):
+    def __init__(self, nombre, edad, salario):
+        super().__init__(nombre, edad)  # Hereda atributos de Persona y reutilizo el constructor de Persona
+        self.salario = salario
+
+    # Polimorfismo: sobrescritura del método se llama igual  pero sobrescribimos el método de la clase base
+    def mostrar_info(self):
+        return f"Empleado: {self.nombre}, Edad: {self.get_edad()}, Salario: ${self.salario}"
+
+# Otra clase derivada: Gerente 
+class Gerente(Empleado):
+    def __init__(self, nombre, edad, salario, departamento):
+        super().__init__(nombre, edad, salario)
+        self.departamento = departamento  # Encapsulación: atributo privado
+    def mostrar_info(self):
+    # Polimorfismo: mismo método, distinto comportamiento
+        return f"Gerente: {self.nombre}, Departamento: {self.departamento}, Edad: {self.get_edad()}, Salario: ${self.salario}"
+
+# Función polimórfica: acepta cualquier objeto que tenga mostrar_info
+def imprimir_info_persona(persona):
+    print(persona.mostrar_info())
+
+# Programa principal
+# Crear instancias para demostrar funcionalidad
+if __name__ == "__main__":
+    persona1 = Persona("Ana", 30)
+    empleado1 = Empleado("Luis", 28, 1200)
+    gerente1 = Gerente("María", 40, 2500, "Finanzas")
+
+    # Encapsulación: modificar edad a través del setter
+    persona1.set_edad(31)
+
+    # Demostración de polimorfismo con la misma función
+    imprimir_info_persona(persona1)
+    imprimir_info_persona(empleado1)
+    imprimir_info_persona(gerente1)
