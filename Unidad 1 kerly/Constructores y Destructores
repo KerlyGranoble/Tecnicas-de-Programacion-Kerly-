@@ -1,0 +1,39 @@
+# Clase que representa un automóvil 
+class Auto:
+    def __init__(self, marca, modelo): 
+        # Constructor: Sirve para inicializar los atributos 'marca' y 'modelo' con los valores recibidos.
+        # Y se ejecuta automáticamente cuando se crea un nuevo objeto.
+        self.marca = marca
+        self.modelo = modelo 
+        # Imprime un mensaje indicando que el auto ha sido "encendido"
+        print(f" Auto {self.marca} {self.modelo} ha sido encendido.")
+
+    def conducir(self):
+        # Este es un método que simula que el auto está siendo conducido.
+        # Imprime un mensaje con la marca y el modelo del auto.
+        print(f" Conduciendo el {self.marca} {self.modelo}...")
+
+    def __del__(self):
+        # Este es el destructor de la clase. 
+        # Se llama automáticamente cuando el objeto es eliminado o cuando el programa finaliza.
+        # Aquí simulamos que el auto se apaga y se libera de la memoria.
+        print(f" Auto {self.marca} {self.modelo} ha sido apagado y removido de la memoria.")
+
+# -----------------------------
+# Sección de uso de la clase Auto
+# Aquí estamos creando objetos de la clase Auto y usando sus métodos.
+# -----------------------------
+
+# Creamos un objeto llamado 'auto1' de la clase Auto, con marca FORD y modelo RANGER
+auto1 = Auto("FORD 150", "RANGER")
+# Llamamos al método 'conducir' del objeto 'auto1'
+auto1.conducir()
+
+# Creamos otro objeto llamado 'auto2' con marca KIA y modelo SONET
+auto2 = Auto("KIA", "SONET")
+# También conducimos este segundo auto
+auto2.conducir()
+
+# Cuando el programa termina, los objetos 'auto1' y 'auto2' serán eliminados automáticamente
+# Se ejecutará el método __del__ para cada uno de ellos. 
+
