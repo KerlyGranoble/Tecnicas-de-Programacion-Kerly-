@@ -1,0 +1,146 @@
+# Sistema de Gestión de Inventarios 
+# Este programa permite administrar productos en una tienda.
+# Se puede añadir, eliminar, actualizar, buscar y mostrar productos.
+
+# Clase que representa un producto de la tienda
+class Producto:
+    def __init__(self, id_producto, nombre, cantidad, precio):
+        # Constructor: aquí guardamos los datos básicos de un producto
+        self.id = id_producto
+        self.nombre = nombre
+        self.cantidad = cantidad
+        self.precio = precio
+
+    # Método para mostrar la información del producto en texto
+    def __str__(self):
+        return f"ID: {self.id}, Nombre: {self.nombre}, Cantidad: {self.cantidad}, Precio: ${self.precio:.2f}"
+
+
+# Clase Inventario el cual se guarda en un diccionario: {ID: Producto}.
+class Inventario:
+    def __init__(self):
+        # Diccionario vacío que guardará los productos
+        # La clave será el ID, y el valor será el objeto Producto
+        self.productos = {}
+
+    # Método para añadir un nuevo producto
+    def añadir_producto(self, producto):
+        if producto.id in self.productos:  # Verifica si ya existe ese ID
+            print(" Error: Ya existe un producto con ese ID.")
+        else:
+            self.productos[producto.id] = producto  # Se guarda en el diccionario
+            print("Producto añadido con éxito.")
+
+    # Método para eliminar un producto según su ID
+    def eliminar_producto(self, id_producto):
+        if id_producto in self.productos:
+            self.productos.pop(id_producto)  # Elimina el producto del diccionario
+            print(" Producto eliminado con éxito.")
+        else:
+            print(" No se encontró el producto con ese ID.")
+
+    # Método para actualizar cantidad o precio de un producto
+    def actualizar_producto(self, id_producto, nueva_cantidad=None, nuevo_precio=None):
+        if id_producto in self.productos:
+            producto = self.productos[id_producto]
+            if nueva_cantidad is not None:  # Si se ingresó una nueva cantidad
+                producto.cantidad = nueva_cantidad
+            if nuevo_precio is not None:  # Si se ingresó un nuevo precio
+                producto.precio = nuevo_precio
+            print("Producto actualizado con éxito.")
+        else:
+            print(" No se encontró el producto con ese ID.")
+
+    # Método para buscar productos por nombre
+    def buscar_producto(self, nombre):
+        # Busca en todos los productos si el nombre coincide parcial o totalmente
+        encontrados = [p for p in self.productos.values() if nombre.lower() in p.nombre.lower()]
+        if encontrados:
+            print(" Productos encontrados:")
+            for p in encontrados:
+                print(p)
+        else:
+            print("No se encontraron productos con ese nombre.")
+
+    # Método para mostrar todos los productos
+    def mostrar_productos(self):
+        if self.productos:
+            print("\n Inventario actual:")
+            for p in self.productos.values():  # Mostramos la información de cada producto del inventario
+                print(p)
+        else:
+            print("El inventario está vacío.")
+
+
+# Menú del sistema para añadir, eliminar, actualizar, buscar o mostrar productos
+def menu():
+    inventario = Inventario()  # Creamos un inventario vacío al inicio
+
+    while True:
+        # Opciones que verá el usuario en consola
+        print("\n==**== Sistema de Gestión de Inventarios ==**==")
+        print("1. Añadir producto")
+        print("2. Eliminar producto")
+        print("3. Actualizar producto")
+        print("4. Buscar producto por nombre")
+        print("5. Mostrar todos los productos")
+        print("6. Salir")
+
+        opcion = input(" Seleccione una opción: ")
+
+        # Opción 1: añadir producto
+        if opcion == "1":
+            try:
+                id_producto = int(input("Ingrese ID: "))
+                nombre = input("Ingrese nombre: ")
+                cantidad = int(input("Ingrese cantidad: "))
+                precio = float(input("Ingrese precio: "))
+                producto = Producto(id_producto, nombre, cantidad, precio)
+                inventario.añadir_producto(producto)
+            except ValueError:
+                print("Error: datos inválidos.")
+
+        # Opción 2: eliminar producto
+        elif opcion == "2":
+            try:
+                id_producto = int(input("Ingrese ID del producto a eliminar: "))
+                inventario.eliminar_producto(id_producto)
+            except ValueError:
+                print(" Error: ID inválido.")
+
+        # Opción 3: actualizar producto
+        elif opcion == "3":
+            try:
+                id_producto = int(input("Ingrese ID del producto a actualizar: "))
+                nueva_cantidad = input("Ingrese nueva cantidad (dejar vacío si no desea cambiar): ")
+                nuevo_precio = input("Ingrese nuevo precio (dejar vacío si no desea cambiar): ")
+
+                # Si el usuario escribió un valor, lo convertimos a número; si lo dejó vacío, lo ignoramos
+                cantidad = int(nueva_cantidad) if nueva_cantidad else None
+                precio = float(nuevo_precio) if nuevo_precio else None
+
+                inventario.actualizar_producto(id_producto, cantidad, precio)
+            except ValueError:
+                print("Error: datos inválidos.")
+
+        # Opción 4: buscar producto
+        elif opcion == "4":
+            nombre = input("Ingrese nombre del producto a buscar: ")
+            inventario.buscar_producto(nombre)
+
+        # Opción 5: mostrar inventario completo
+        elif opcion == "5":
+            inventario.mostrar_productos()
+
+        # Opción 6: salir del sistema
+        elif opcion == "6":
+            print(" Gracias por usar el sistema de Inventario. ¡Hasta luego!")
+            break
+
+        else:
+            print(" Opción inválida. Intente nuevamente.")
+
+
+# Aquí se inicia la ejecución del programa
+if __name__ == "__main__":
+    menu()
