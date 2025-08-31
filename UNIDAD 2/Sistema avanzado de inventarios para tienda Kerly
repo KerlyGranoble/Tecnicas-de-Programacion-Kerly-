@@ -1,0 +1,254 @@
+# Sistema avanzado de inventarios para una tienda
+# Este programa sirve para guardar productos, actualizar su cantidad o precio, y buscar productos.
+# Usamos cosas llamadas colecciones: listas, diccionarios, conjuntos y tuplas para organizar los productos.
+
+import os  
+
+# CLASE PRODUCTO
+class Producto:
+    # Cada producto tiene un ID, un nombre, una cantidad y un precio.
+
+    def __init__(self, producto_id, nombre, cantidad=0, precio=0.0):
+        # Aquí guardamos los datos del producto cuando lo creamos
+        self.producto_id = str(producto_id).strip()  # ID siempre en texto y sin espacios extra
+        self._nombre = None
+        self._cantidad = 0
+        self._precio = 0.0
+
+        self.nombre = nombre      # Usamos esto para asegurarnos que el nombre sea válido
+        self.cantidad = cantidad  
+        self.precio = precio      
+
+    # GETTERS Y SETTERS
+    # Estos son métodos especiales que nos permiten controlar los datos del producto
+
+    @property
+    def nombre(self):
+        # Esto nos permite leer el nombre del producto
+        return self._nombre
+
+    @nombre.setter
+    def nombre(self, value):
+        # Esto nos permite cambiar el nombre, pero revisa que no esté vacío
+        value = str(value).strip()
+        if not value:
+            raise ValueError("El nombre no puede estar vacío.")
+        self._nombre = value
+
+    @property
+    def cantidad(self):
+        # Esto nos permite leer la cantidad de productos
+        return self._cantidad
+
+    @cantidad.setter
+    def cantidad(self, value):
+        # Esto nos permite cambiar la cantidad, pero no puede ser negativa
+        value = int(value)
+        if value < 0:
+            raise ValueError("La cantidad no puede ser negativa.")
+        self._cantidad = value
+
+    @property
+    def precio(self):
+        # Esto nos permite leer el precio del producto
+        return self._precio
+
+    @precio.setter
+    def precio(self, value):
+        # Esto nos permite cambiar el precio, pero no puede ser negativo
+        value = float(value)
+        if value < 0:
+            raise ValueError("El precio no puede ser negativo.")
+        self._precio = value
+
+    # --------------------------
+    # MÉTODOS ÚTILES
+    # --------------------------
+    def snapshot(self):
+    
+        return (self.producto_id, self.nombre, self.cantidad, self.precio)
+
+    def to_linea(self):
+        # Convierte el producto a una línea de texto para guardarlo en un archivo
+        return f"{self.producto_id};{self.nombre};{self.cantidad};{self.precio}\n"
+
+    @staticmethod
+    def from_linea(linea):
+        # Convierte una línea de archivo de texto de nuevo en un producto
+        partes = linea.strip().split(";")
+        if len(partes) != 4:
+            raise ValueError("Formato de línea incorrecto")
+        pid, nombre, cantidad, precio = partes
+        return Producto(pid, nombre, int(cantidad), float(precio))
+
+
+# CLASE INVENTARIO
+class Inventario:
+    # El inventario es donde guardamos todos los productos de la tienda
+
+    def __init__(self):
+        self._items = {}      # Diccionario: nos permite encontrar un producto rápido usando su ID
+        self._ids = set()     
+        self._snapshots = []  # Lista de tuplas para guardar "fotos" de los productos
+
+    # MÉTODOS PRINCIPALES
+    def agregar(self, producto):
+        # Agrega un producto nuevo al inventario
+        if producto.producto_id in self._ids:
+            raise KeyError("Ya existe un producto con ese ID.")
+        self._items[producto.producto_id] = producto
+        self._ids.add(producto.producto_id)
+        self._snapshots.append(producto.snapshot())
+
+    def eliminar(self, producto_id):
+        # Elimina un producto usando su ID
+        if producto_id not in self._items:
+            raise KeyError("No existe un producto con ese ID.")
+        del self._items[producto_id]
+        self._ids.remove(producto_id)
+        self._snapshots = [p.snapshot() for p in self._items.values()]
+
+    def actualizar_cantidad(self, producto_id, nueva_cantidad):
+        # Cambia la cantidad de un producto
+        self._items[producto_id].cantidad = nueva_cantidad
+        self._snapshots = [p.snapshot() for p in self._items.values()]
+
+    def actualizar_precio(self, producto_id, nuevo_precio):
+        # Cambia el precio de un producto
+        self._items[producto_id].precio = nuevo_precio
+        self._snapshots = [p.snapshot() for p in self._items.values()]
+
+    def buscar_por_nombre(self, texto):
+        # Busca productos que tengan el texto en su nombre
+        texto = texto.lower().strip()
+        return [p for p in self._items.values() if texto in p.nombre.lower()]
+
+    def listar_todos(self):
+        # Devuelve todos los productos
+        return list(self._items.values())
+
+    # GUARDAR Y CARGAR ARCHIVO
+    def guardar_en_archivo(self, ruta):
+        # Guarda todos los productos en un archivo de texto
+        with open(ruta, "w", encoding="utf-8") as f:
+            for producto in self._items.values():
+                f.write(producto.to_linea())
+
+    def cargar_desde_archivo(self, ruta):
+        # Lee los productos desde el archivo si existe
+        if not os.path.exists(ruta):
+            self._items.clear()
+            self._ids.clear()
+            self._snapshots.clear()
+            return
+        self._items.clear()
+        self._ids.clear()
+        self._snapshots.clear()
+        with open(ruta, "r", encoding="utf-8") as f:
+            for linea in f:
+                producto = Producto.from_linea(linea)
+                self.agregar(producto)
+
+
+# MENÚ DE USUARIO
+ARCHIVO = "inventario.txt"
+
+def mostrar_producto(p):
+    # Muestra los datos de un producto en pantalla
+    print(f"ID: {p.producto_id} | Nombre: {p.nombre} | Cantidad: {p.cantidad} | Precio: ${p.precio:.2f}")
+
+def menu():
+    # Este es el menú que ve el usuario para manejar los productos
+    inventario = Inventario()
+    inventario.cargar_desde_archivo(ARCHIVO)
+
+    while True:
+        # Mostramos todas las opciones
+        print("\n===== MENÚ DE INVENTARIO =====")
+        print("1. Agregar producto")
+        print("2. Eliminar producto")
+        print("3. Actualizar cantidad")
+        print("4. Actualizar precio")
+        print("5. Buscar producto por nombre")
+        print("6. Mostrar todos los productos")
+        print("7. Guardar inventario")
+        print("0. Salir")
+
+        opcion = input("Elige una opción: ")
+
+        try:
+            if opcion == "1":
+                # Agregar producto nuevo
+                pid = input("ID: ")
+                nombre = input("Nombre: ")
+                cantidad = int(input("Cantidad: "))
+                precio = float(input("Precio: "))
+                producto = Producto(pid, nombre, cantidad, precio)
+                inventario.agregar(producto)
+                inventario.guardar_en_archivo(ARCHIVO)
+                print("Producto agregado y guardado correctamente.")
+
+            elif opcion == "2":
+                # Eliminar producto
+                pid = input("ID del producto a eliminar: ")
+                inventario.eliminar(pid)
+                inventario.guardar_en_archivo(ARCHIVO)
+                print("Producto eliminado.")
+
+            elif opcion == "3":
+                # Cambiar cantidad
+                pid = input("ID del producto: ")
+                cantidad = int(input("Nueva cantidad: "))
+                inventario.actualizar_cantidad(pid, cantidad)
+                inventario.guardar_en_archivo(ARCHIVO)
+                print("Cantidad actualizada.")
+
+            elif opcion == "4":
+                # Cambiar precio
+                pid = input("ID del producto: ")
+                precio = float(input("Nuevo precio: "))
+                inventario.actualizar_precio(pid, precio)
+                inventario.guardar_en_archivo(ARCHIVO)
+                print("Precio actualizado.")
+
+            elif opcion == "5":
+                # Buscar producto por nombre
+                texto = input("Texto a buscar en el nombre: ")
+                resultados = inventario.buscar_por_nombre(texto)
+                if resultados:
+                    for p in resultados:
+                        mostrar_producto(p)
+                else:
+                    print("No se encontraron productos.")
+
+            elif opcion == "6":
+                # Mostrar todos los productos
+                productos = inventario.listar_todos()
+                if productos:
+                    for p in productos:
+                        mostrar_producto(p)
+                else:
+                    print("Inventario vacío.")
+
+            elif opcion == "7":
+                # Guardar inventario manualmente
+                inventario.guardar_en_archivo(ARCHIVO)
+                print("Inventario guardado.")
+
+            elif opcion == "0":
+                # Salir del programa
+                inventario.guardar_en_archivo(ARCHIVO)
+                print("Saliendo... ¡Adiós!")
+                break
+
+            else:
+                print("Opción no válida.")
+
+        except Exception as e:
+            # Si pasa algo raro, mostramos el error
+            print("Error:", e)
+
+# EJECUCIÓN DEL PROGRAMA
+if __name__ == "__main__":
+    # Esto arranca el programa
+    menu()
