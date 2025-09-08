@@ -1,0 +1,236 @@
+# Sistema de gestión de biblioteca digital
+# Este programa implementa un sistema sencillo de biblioteca
+# con las siguientes funcionalidades: Agregar y quitar libros, Registrar y dar de baja usuarios, Prestar y devolver libros, Listar libros prestados por usuario, Buscar libros por título, autor o categoría, Ver catálogo completo de la biblioteca
+# Incluye un menú interactivo para su uso desde consola.
+
+# Clase Libro 
+class Libro:
+    """
+    Representa un libro en la biblioteca.
+    Cada libro tiene título, autor, categoría, código único y un estado de préstamo.
+    """
+    def __init__(self, titulo, autor, categoria, codigo):
+        self.titulo = titulo
+        self.autor = autor
+        self.categoria = categoria
+        self.codigo = codigo
+        self.prestado = False  # Indica si está prestado o disponible
+
+    def __str__(self):
+        return f"[{self.codigo}] {self.titulo} - {self.autor} ({self.categoria}) {'(Prestado)' if self.prestado else '(Disponible)'}"
+
+
+#  Clase Usuario 
+class Usuario:
+    """
+    Representa un usuario de la biblioteca.
+    Cada usuario tiene un nombre, un ID único y la lista de libros que ha prestado.
+    """
+    def __init__(self, nombre, id_usuario):
+        self.nombre = nombre
+        self.id_usuario = id_usuario
+        self.libros_prestados = []  # Lista de libros prestados
+
+    def __str__(self):
+        return f"{self.nombre} (ID: {self.id_usuario})"
+
+
+# Clase Biblioteca 
+class Biblioteca:
+    """
+    Clase principal que gestiona la biblioteca.
+    Contiene diccionarios de libros y usuarios, y métodos para operar sobre ellos.
+    """
+    def __init__(self):
+        self.libros = {}   # Diccionario {codigo: Libro}
+        self.usuarios = {} # Diccionario {id_usuario: Usuario}
+
+    # Gestión de libros 
+    def agregar_libro(self, libro):
+        """Agrega un nuevo libro a la biblioteca si el código no existe."""
+        if libro.codigo.strip() == "":
+            print("El código no puede estar vacío.")
+            return
+        if libro.codigo not in self.libros:
+            self.libros[libro.codigo] = libro
+            print(f"Libro agregado: {libro}")
+        else:
+            print("El libro ya existe en la biblioteca.")
+
+    def quitar_libro(self, codigo):
+        """Elimina un libro si no está prestado."""
+        if codigo in self.libros:
+            if self.libros[codigo].prestado:
+                print(" No se puede quitar un libro prestado.")
+            else:
+                eliminado = self.libros.pop(codigo)
+                print(f"Libro eliminado: {eliminado}")
+        else:
+            print("Libro no encontrado.")
+
+    def listar_libros(self):
+        """Muestra todos los libros del catálogo (prestados o disponibles)."""
+        if self.libros:
+            print(" Catálogo de la biblioteca:")
+            for libro in self.libros.values():
+                print(f" - {libro}")
+        else:
+            print("No hay libros en la biblioteca.")
+
+    # Gestión de usuarios 
+    def registrar_usuario(self, usuario):
+        """Registra un nuevo usuario si no está repetido el ID."""
+        if usuario.id_usuario.strip() == "":
+            print(" El ID no puede estar vacío.")
+            return
+        if usuario.id_usuario not in self.usuarios:
+            self.usuarios[usuario.id_usuario] = usuario
+            print(f" Usuario registrado: {usuario}")
+        else:
+            print("El usuario ya está registrado.")
+
+    def dar_baja_usuario(self, id_usuario):
+        """Elimina un usuario si no tiene libros prestados."""
+        if id_usuario in self.usuarios:
+            if self.usuarios[id_usuario].libros_prestados:
+                print(" El usuario no puede darse de baja con libros pendientes.")
+            else:
+                eliminado = self.usuarios.pop(id_usuario)
+                print(f"Usuario dado de baja: {eliminado}")
+        else:
+            print("Usuario no encontrado.")
+
+    # Préstamos 
+    def prestar_libro(self, id_usuario, codigo):
+        """Presta un libro a un usuario si existe y no está prestado."""
+        if id_usuario in self.usuarios and codigo in self.libros:
+            usuario = self.usuarios[id_usuario]
+            libro = self.libros[codigo]
+            if not libro.prestado:
+                libro.prestado = True
+                usuario.libros_prestados.append(libro)
+                print(f"Libro prestado: {libro} a {usuario}")
+            else:
+                print("El libro ya está prestado.")
+        else:
+            print("Usuario o libro no encontrado.")
+
+    def devolver_libro(self, id_usuario, codigo):
+        """Devuelve un libro prestado por un usuario."""
+        if id_usuario in self.usuarios:
+            usuario = self.usuarios[id_usuario]
+            for libro in usuario.libros_prestados:
+                if libro.codigo == codigo:
+                    libro.prestado = False
+                    usuario.libros_prestados.remove(libro)
+                    print(f"Libro devuelto: {libro}")
+                    return
+            print("El usuario no tiene este libro prestado.")
+        else:
+            print("Usuario no encontrado.")
+
+    # Listar y buscar 
+    def listar_prestados(self, id_usuario):
+        """Muestra los libros que tiene prestados un usuario."""
+        if id_usuario in self.usuarios:
+            usuario = self.usuarios[id_usuario]
+            if usuario.libros_prestados:
+                print(f"📋 Libros prestados por {usuario}:")
+                for libro in usuario.libros_prestados:
+                    print(f" - {libro}")
+            else:
+                print(f"{usuario} no tiene libros prestados.")
+        else:
+            print(" Usuario no encontrado.")
+
+    def buscar_libros(self, criterio, valor):
+        """Busca libros por título, autor o categoría."""
+        print(f"Buscando por {criterio} = {valor}...")
+        encontrados = []
+        for libro in self.libros.values():
+            if criterio == "titulo" and valor.lower() in libro.titulo.lower():
+                encontrados.append(libro)
+            elif criterio == "autor" and valor.lower() in libro.autor.lower():
+                encontrados.append(libro)
+            elif criterio == "categoria" and valor.lower() in libro.categoria.lower():
+                encontrados.append(libro)
+
+        if encontrados:
+            for l in encontrados:
+                print(f" - {l}")
+        else:
+            print("No se encontraron libros.")
+
+# Menú Interactivo 
+def menu():
+    """
+    Menú principal que permite al usuario interactuar con la biblioteca
+    mediante opciones en consola
+    """
+    biblioteca = Biblioteca()
+
+    # Datos de ejemplo precargados
+    biblioteca.agregar_libro(Libro("Cien Años de Soledad", "Gabriel García Márquez", "Novela", "123"))
+    biblioteca.agregar_libro(Libro("El Principito", "Antoine de Saint-Exupéry", "Fantasía", "456"))
+    biblioteca.agregar_libro(Libro("Física Universitaria", "Sears y Zemansky", "Ciencia", "789"))
+
+    biblioteca.registrar_usuario(Usuario("Juan Pérez", "U001"))
+    biblioteca.registrar_usuario(Usuario("María Gómez", "U002"))
+
+    while True:
+        print("\n===== MENÚ BIBLIOTECA =====")
+        print("1. Agregar libro")
+        print("2. Quitar libro")
+        print("3. Registrar usuario")
+        print("4. Dar de baja usuario")
+        print("5. Prestar libro")
+        print("6. Devolver libro")
+        print("7. Listar libros prestados")
+        print("8. Buscar libros")
+        print("9. Listar catálogo completo")
+        print("0. Salir")
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            titulo = input("Título: ")
+            autor = input("Autor: ")
+            categoria = input("Categoría: ")
+            codigo = input("Código: ")
+            biblioteca.agregar_libro(Libro(titulo, autor, categoria, codigo))
+        elif opcion == "2":
+            codigo = input("Código del libro: ")
+            biblioteca.quitar_libro(codigo)
+        elif opcion == "3":
+            nombre = input("Nombre del usuario: ")
+            id_usuario = input("ID de usuario: ")
+            biblioteca.registrar_usuario(Usuario(nombre, id_usuario))
+        elif opcion == "4":
+            id_usuario = input("ID de usuario: ")
+            biblioteca.dar_baja_usuario(id_usuario)
+        elif opcion == "5":
+            id_usuario = input("ID de usuario: ")
+            codigo = input("Código del libro: ")
+            biblioteca.prestar_libro(id_usuario, codigo)
+        elif opcion == "6":
+            id_usuario = input("ID de usuario: ")
+            codigo = input("Código del libro: ")
+            biblioteca.devolver_libro(id_usuario, codigo)
+        elif opcion == "7":
+            id_usuario = input("ID de usuario: ")
+            biblioteca.listar_prestados(id_usuario)
+        elif opcion == "8":
+            criterio = input("Buscar por (titulo/autor/categoria): ")
+            valor = input("Valor a buscar: ")
+            biblioteca.buscar_libros(criterio, valor)
+        elif opcion == "9":
+            biblioteca.listar_libros()
+        elif opcion == "0":
+            print(" Saliendo del sistema...")
+            break
+        else:
+            print("Opción inválida. Intente de nuevo.")
+
+
+# Punto de entrada 
+if __name__ == "__main__":
+    menu()
