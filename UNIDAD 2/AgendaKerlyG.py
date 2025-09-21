@@ -1,0 +1,88 @@
+import tkinter as tk           # Importamos la librería Tkinter para crear la interfaz gráfica
+from tkinter import ttk        # Importamos ttk para usar TreeView que es una tabla
+from tkinter import messagebox # Importamos messagebox para mostrar mensajes de advertencia o confirmación
+
+# Clase principal de la Agenda Kerly
+class AgendaPersonal:
+    def __init__(self, root):
+        # Configuración de la ventana principal
+        self.root = root
+        self.root.title("Agenda Personal")   # Título de la ventana
+        self.root.geometry("600x400")        # Tamaño de la ventana
+
+        # Frame para mostrar los eventos
+        frame_lista = tk.Frame(self.root)    # Creamos un contenedor para la tabla
+        frame_lista.pack(pady=10)            # Lo agregamos con un poco de espacio vertical
+
+        # Creamos una tabla con 3 columnas: Fecha, Hora y Descripción
+        self.tree = ttk.Treeview(frame_lista, columns=("Fecha", "Hora", "Descripción"), show="headings")
+        self.tree.heading("Fecha", text="Fecha")            # Encabezado de columna Fecha
+        self.tree.heading("Hora", text="Hora")              # Encabezado de columna Hora
+        self.tree.heading("Descripción", text="Descripción")# Encabezado de columna Descripción
+        self.tree.pack()                                    # Mostramos la tabla en pantalla
+
+        # Frame para entradas de datos 
+        frame_datos = tk.Frame(self.root)    # Creamos otro contenedor para los campos de entrada
+        frame_datos.pack(pady=10)
+
+        # Etiqueta y campo de texto para ingresar la fecha
+        tk.Label(frame_datos, text="Fecha (dd/mm/aaaa):").grid(row=0, column=0, padx=5, pady=5)
+        self.fecha_entry = tk.Entry(frame_datos)
+        self.fecha_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        # Etiqueta y campo de texto para ingresar la hora
+        tk.Label(frame_datos, text="Hora (hh:mm):").grid(row=1, column=0, padx=5, pady=5)
+        self.hora_entry = tk.Entry(frame_datos)
+        self.hora_entry.grid(row=1, column=1, padx=5, pady=5)
+
+        # Etiqueta y campo de texto para ingresar la descripción
+        tk.Label(frame_datos, text="Descripción:").grid(row=2, column=0, padx=5, pady=5)
+        self.desc_entry = tk.Entry(frame_datos, width=40)
+        self.desc_entry.grid(row=2, column=1, padx=5, pady=5)
+
+        # Frame para los botones 
+        frame_botones = tk.Frame(self.root)   # Contenedor para botones
+        frame_botones.pack(pady=10)
+
+        # Botón para agregar evento
+        tk.Button(frame_botones, text="Agregar Evento", command=self.agregar_evento).grid(row=0, column=0, padx=5)
+        # Botón para eliminar evento seleccionado
+        tk.Button(frame_botones, text="Eliminar Evento Seleccionado", command=self.eliminar_evento).grid(row=0, column=1, padx=5)
+        # Botón para salir del programa
+        tk.Button(frame_botones, text="Salir", command=self.root.quit).grid(row=0, column=2, padx=5)
+
+    # Función para agregar un evento 
+    def agregar_evento(self):
+        fecha = self.fecha_entry.get()      # Tomamos el texto escrito en Fecha
+        hora = self.hora_entry.get()        # Tomamos el texto escrito en Hora
+        descripcion = self.desc_entry.get() # Tomamos el texto escrito en Descripción
+
+        # Validamos que no estén vacíos los campos
+        if fecha and hora and descripcion:
+            # Insertamos los valores en la tabla
+            self.tree.insert("", "end", values=(fecha, hora, descripcion))
+            # Borramos los campos para que queden vacíos otra vez
+            self.fecha_entry.delete(0, tk.END)
+            self.hora_entry.delete(0, tk.END)
+            self.desc_entry.delete(0, tk.END)
+        else:
+            # Mostramos advertencia si falta algún dato
+            messagebox.showwarning("Advertencia", "Por favor completa todos los campos")
+
+    # Función para eliminar evento seleccionado 
+    def eliminar_evento(self):
+        seleccionado = self.tree.selection() # Guardamos el evento que está seleccionado en la tabla
+        if seleccionado:
+            # Confirmamos antes de borrar
+            confirmar = messagebox.askyesno("Confirmar", "¿Seguro que deseas eliminar el evento?")
+            if confirmar:
+                self.tree.delete(seleccionado) # Borramos de la tabla
+        else:
+            messagebox.showwarning("Advertencia", "No has seleccionado ningún evento")
+
+
+# Bloque principal para ejecutar el programa 
+if __name__ == "__main__":
+    root = tk.Tk()               # Creamos la ventana principal
+    app = AgendaPersonal(root)   # Creamos la aplicación
+    root.mainloop()              # Iniciamos el bucle para que la ventana quede abierta
