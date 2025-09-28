@@ -1,0 +1,63 @@
+import tkinter as tk
+from tkinter import messagebox #Sirve para mostrar ventanas emergentes
+
+# Crear la ventana principal de mi aplicación para gestionar una lista de tareas
+ventana = tk.Tk()
+ventana.title("Lista de Tareas")
+ventana.geometry("300x300")
+
+# Lista donde se van a guardar las tareas
+tareas = []
+
+# Función para añadir una tarea
+def añadir_tarea(event=None):
+    tarea = entrada.get()
+    if tarea != "": 
+        lista_tareas.insert(tk.END, tarea)  # Aquí se agrega la tarea a la lista
+        tareas.append(tarea)  # guarda la tarea en la lista interna
+        entrada.delete(0, tk.END)  # borra lo que está escrito en la caja de entrada
+    else:
+        messagebox.showwarning("Advertencia", "Escribe una tarea antes de añadir.")
+
+# Función para señalar que la tarea está hecha
+def completar_tarea():
+    try:
+        indice = lista_tareas.curselection()[0]  # toma la tarea marcada en la lista
+        tarea = lista_tareas.get(indice)
+        # Agregarle un visto (✔) para marcarla como hecha
+        if not tarea.startswith("✔ "):
+            lista_tareas.delete(indice)
+            lista_tareas.insert(indice, "✔ " + tarea)
+    except:
+        messagebox.showwarning("Advertencia", "Selecciona una tarea para marcar como completada.")
+
+# Función para eliminar tarea
+def eliminar_tarea():
+    try:
+        indice = lista_tareas.curselection()[0]
+        lista_tareas.delete(indice)
+        tareas.pop(indice)
+    except:
+        messagebox.showwarning("Advertencia", "Selecciona una tarea para eliminar.")
+
+# Campo de entrada para escribir la tarea
+entrada = tk.Entry(ventana, width=40)
+entrada.pack(pady=10)
+entrada.bind("<Return>", añadir_tarea)  # permite añadir con Enter
+
+# Botones de la aplicación 
+btn_añadir = tk.Button(ventana, text="Añadir Tarea", command=añadir_tarea)
+btn_añadir.pack(pady=5)
+
+btn_completar = tk.Button(ventana, text="Marcar como Completada", command=completar_tarea)
+btn_completar.pack(pady=5)
+
+btn_eliminar = tk.Button(ventana, text="Eliminar Tarea", command=eliminar_tarea)
+btn_eliminar.pack(pady=5)
+
+# Lista donde se muestran las tareas
+lista_tareas = tk.Listbox(ventana, width=50, height=15, selectmode=tk.SINGLE)
+lista_tareas.pack(pady=10)
+
+# Ejecutar la aplicación
+ventana.mainloop()
